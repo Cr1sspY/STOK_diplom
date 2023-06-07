@@ -18,9 +18,13 @@ class MainWindow(QMainWindow):
         self.ui.label_fio.setText(full_name)
         self.ui.label_pos.setText(position)
         self.ui.exit_btn.clicked.connect(self.exit)
-        self.get_service()
+        self.ui.get_order()
+        self.ui.get_wh()
+        self.ui.get_client()
+        self.ui.get_service()
         self.ui.del_serv_btn.clicked.connect(self.delete_service)
         self.ui.save_serv_btn.clicked.connect(self.save_service)
+        self.ui.get_history()
 
         if position == 'Администратор':
             self.ui.stackedWidget.setCurrentIndex(0)
@@ -31,10 +35,60 @@ class MainWindow(QMainWindow):
         self.close()
         Auth()
 
+    def get_order(self):
+        self.ui.order_table.clear()
+        rec = self.db.get_order()
+        self.ui.order_table.setColumnCount(11)
+        self.ui.order_table.setRowCount(len(rec))
+        self.ui.order_table.setHorizontalHeaderLabels(['ID Заказа', 'Клиент', 'Услуга', 'Стоимость услуги, руб.',
+                                                       'Комплектующая', 'Стоимость комплектующей, руб.',
+                                                       'Сумма заказа, руб.', 'Статус', 'Дата заказа', 'Время заказа',
+                                                       'Сотрудник'])
+        for i, order in enumerate(rec):
+            for x, field in enumerate(order):
+                item = QTableWidgetItem()
+                item.setText(str(field))
+                if x == 0:
+                    item.setFlags(Qt.ItemIsEnabled)
+                self.ui.order_table.setItem(i, x, item)
+        self.ui.order_table.resizeColumnsToContents()
+
+    def get_wh(self):
+        self.ui.wh_table.clear()
+        rec = self.db.get_wh()
+        self.ui.wh_table.setColumnCount(5)
+        self.ui.wh_table.setRowCount(len(rec))
+        self.ui.wh_table.setHorizontalHeaderLabels(['ID Комплектующей', 'Тип', 'Наименование', 'Количество, шт.',
+                                                    'Стоимость, руб.'])
+        for i, wh in enumerate(rec):
+            for x, field in enumerate(wh):
+                item = QTableWidgetItem()
+                item.setText(str(field))
+                if x == 0:
+                    item.setFlags(Qt.ItemIsEnabled)
+                self.ui.wh_table.setItem(i, x, item)
+        self.ui.wh_table.resizeColumnsToContents()
+
+    def get_client(self):
+        self.ui.client_table.clear()
+        rec = self.db.get_client()
+        self.ui.client_table.setColumnCount(4)
+        self.ui.client_table.setRowCount(len(rec))
+        self.ui.client_table.setHorizontalHeaderLabels(['ID Клиента', 'Название', 'Номер телефона', 'Почта'])
+        for i, client in enumerate(rec):
+            for x, field in enumerate(client):
+                item = QTableWidgetItem()
+                item.setText(str(field))
+                if x == 0:
+                    item.setFlags(Qt.ItemIsEnabled)
+                self.ui.client_table.setItem(i, x, item)
+        self.ui.client_table.resizeColumnsToContents()
+
     def get_service(self):
         self.ui.service_table.clear()
         rec = self.db.get_service()
-        self.ui.service_table.setRowCount(len(rec)+1)
+        self.ui.service_table.setColumnCount(3)
+        self.ui.service_table.setRowCount(len(rec))
         self.ui.service_table.setHorizontalHeaderLabels(['ID Услуги', 'Услуга', 'Стоимость'])
 
         for i, service in enumerate(rec):
@@ -44,6 +98,7 @@ class MainWindow(QMainWindow):
                 if x == 0:
                     item.setFlags(Qt.ItemIsEnabled)
                 self.ui.service_table.setItem(i, x, item)
+        self.ui.service_table.resizeColumnsToContents()
 
     def delete_service(self):
         SelectedRow = self.ui.service_table.currentRow()
@@ -65,7 +120,7 @@ class MainWindow(QMainWindow):
             msg.setStandardButtons(QMessageBox.Ok)
             retval = msg.exec_()
         else:
-            for col in range(0, colcount):
+            for col in range(1, colcount):
                 self.ui.service_table.setItem(SelectedRow, col, QTableWidgetItem(''))
             ix = self.ui.service_table.model().index(-1, -1)
             self.ui.service_table.setCurrentIndex(ix)
@@ -86,9 +141,25 @@ class MainWindow(QMainWindow):
         for row in range(rows):
             tmp = []
             for col in range(cols):
-                tmp.append(self.ui.service_table.item(row, col).text())
+                tmp.append(self.service_table.item(row, col).text())
             data.append(tmp)
         return data
+
+    def get_history(self):
+        self.ui.history_table.clear()
+        rec = self.db.get_history()
+        self.ui.history_table.setColumnCount(4)
+        self.ui.history_table.setRowCount(len(rec))
+        self.ui.history_table.setHorizontalHeaderLabels(['ID входа', 'Пользователь', 'Дата входа', 'Время входа'])
+
+        for i, history in enumerate(rec):
+            for x, field in enumerate(history):
+                item = QTableWidgetItem()
+                item.setText(str(field))
+                if x == 0:
+                    item.setFlags(Qt.ItemIsEnabled)
+                self.ui.history_table.setItem(i, x, item)
+        self.ui.history_table.resizeColumnsToContents()
 
 
 class Auth(QDialog):
@@ -109,9 +180,13 @@ class Auth(QDialog):
         data = self.db.get_auth_info(log, pas)
         if data:
             self.ui.hide()
-            surname, name, second_name, position = data[0]
+            surname, name, second_name, position, id = data[0]
             full_name = surname + ' ' + name[0] + '.' + second_name[0] + '.'
             main_win = MainWindow(position, full_name)
+            date_enter = datetime.datetime.now()
+            date_req = str(date_enter.strftime("%d.%m.%Y"))
+            time_req = str(date_enter.strftime("%H:%M"))
+            self.db.insert_log(id, date_req, time_req)
             main_win.setWindowTitle('Станция техобслуживания компьютеров')
 
     def hide_pas(self):
@@ -129,7 +204,7 @@ class Database:
 
     def get_auth_info(self, log, pas):
         cur = self.con.cursor()
-        cur.execute(f'SELECT surname, name, second_name, position FROM employee WHERE login="{log}" and password="{pas}"')
+        cur.execute(f'SELECT surname, name, second_name, position, emp_id FROM employee WHERE login="{log}" and password="{pas}"')
         data = cur.fetchall()
         cur.close()
 
@@ -138,15 +213,36 @@ class Database:
         else:
             return False
 
+    def insert_log(self, id, enter_date, enter_time):
+        cur = self.con.cursor()
+        cur.execute(f"INSERT INTO history VALUES (NULL, ?, ?, ?);", (id, enter_date, enter_time))
+        self.con.commit()
+        cur.close()
+
+    def get_order(self):
+        cursor = self.con.cursor()
+        cursor.execute(f"SELECT * FROM order1")
+        return cursor.fetchall()
+
+    def get_wh(self):
+        cursor = self.con.cursor()
+        cursor.execute(f"SELECT * FROM component")
+        return cursor.fetchall()
+
+    def get_client(self):
+        cursor = self.con.cursor()
+        cursor.execute(f"SELECT * FROM client")
+        return cursor.fetchall()
+
     def get_service(self):
         cursor = self.con.cursor()
         cursor.execute(f"SELECT * FROM service")
         return cursor.fetchall()
 
-    def delete_service(self):
-        cur = self.db.cursor()
+    def delete_service(self, id):
+        cur = self.con.cursor()
         cur.execute(f'DELETE from service WHERE serv_id="{id}"')
-        self.db.commit()
+        self.con.commit()
         cur.close()
 
     def update_service(self, id, name, cost):
@@ -155,6 +251,13 @@ class Database:
         cur.execute(f'UPDATE service set serv_name="{name}", serv_cost="{cost}" WHERE serv_id="{id}"')
         self.con.commit()
         cur.close()
+
+    def get_history(self):
+        cursor = self.con.cursor()
+        cursor.execute(f"SELECT * FROM history")
+        return cursor.fetchall()
+
+
 
 
 if __name__ == '__main__':

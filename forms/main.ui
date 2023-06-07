@@ -174,7 +174,7 @@
                  <string notr="true"/>
                 </property>
                 <property name="currentIndex">
-                 <number>3</number>
+                 <number>0</number>
                 </property>
                 <widget class="QWidget" name="admin_orders_tab">
                  <attribute name="title">
@@ -182,19 +182,29 @@
                  </attribute>
                  <layout class="QGridLayout" name="gridLayout_4">
                   <item row="0" column="0">
-                   <widget class="QTableWidget" name="order_table"/>
+                   <widget class="QTableWidget" name="order_table">
+                    <attribute name="horizontalHeaderStretchLastSection">
+                     <bool>true</bool>
+                    </attribute>
+                   </widget>
                   </item>
                   <item row="1" column="0">
                    <widget class="QPushButton" name="del_ord_btn">
+                    <property name="styleSheet">
+                     <string notr="true">background-color: rgb(238, 130, 238);</string>
+                    </property>
                     <property name="text">
-                     <string>PushButton</string>
+                     <string>Удалить запись</string>
                     </property>
                    </widget>
                   </item>
                   <item row="2" column="0">
                    <widget class="QPushButton" name="save_ord_btn">
+                    <property name="styleSheet">
+                     <string notr="true">background-color: rgb(238, 130, 238);</string>
+                    </property>
                     <property name="text">
-                     <string>PushButton</string>
+                     <string>Сохранить</string>
                     </property>
                    </widget>
                   </item>
@@ -207,18 +217,28 @@
                  <layout class="QGridLayout" name="gridLayout_9">
                   <item row="1" column="0">
                    <widget class="QPushButton" name="del_wh_btn">
+                    <property name="styleSheet">
+                     <string notr="true">background-color: rgb(238, 130, 238);</string>
+                    </property>
                     <property name="text">
-                     <string>PushButton</string>
+                     <string>Удалить запись</string>
                     </property>
                    </widget>
                   </item>
                   <item row="0" column="0">
-                   <widget class="QTableWidget" name="wh_table"/>
+                   <widget class="QTableWidget" name="wh_table">
+                    <attribute name="horizontalHeaderStretchLastSection">
+                     <bool>true</bool>
+                    </attribute>
+                   </widget>
                   </item>
                   <item row="2" column="0">
                    <widget class="QPushButton" name="save_wh_btn">
+                    <property name="styleSheet">
+                     <string notr="true">background-color: rgb(238, 130, 238);</string>
+                    </property>
                     <property name="text">
-                     <string>PushButton</string>
+                     <string>Сохранить</string>
                     </property>
                    </widget>
                   </item>
@@ -230,7 +250,11 @@
                  </attribute>
                  <layout class="QGridLayout" name="gridLayout_7">
                   <item row="0" column="0">
-                   <widget class="QTableWidget" name="client_table"/>
+                   <widget class="QTableWidget" name="client_table">
+                    <attribute name="horizontalHeaderStretchLastSection">
+                     <bool>true</bool>
+                    </attribute>
+                   </widget>
                   </item>
                   <item row="1" column="0">
                    <widget class="QPushButton" name="del_cl_btn">
@@ -261,6 +285,9 @@
                  <layout class="QGridLayout" name="gridLayout_6">
                   <item row="0" column="0">
                    <widget class="QTableWidget" name="service_table">
+                    <attribute name="horizontalHeaderStretchLastSection">
+                     <bool>true</bool>
+                    </attribute>
                     <column>
                      <property name="text">
                       <string>ID Услуги</string>
@@ -306,7 +333,11 @@
                  </attribute>
                  <layout class="QGridLayout" name="gridLayout_10">
                   <item row="0" column="0">
-                   <widget class="QTableWidget" name="history_table"/>
+                   <widget class="QTableWidget" name="history_table">
+                    <attribute name="horizontalHeaderStretchLastSection">
+                     <bool>true</bool>
+                    </attribute>
+                   </widget>
                   </item>
                  </layout>
                 </widget>
