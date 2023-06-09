@@ -7,6 +7,8 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import Qt, pyqtSlot
 
+emp_id = 0
+
 
 class MainWindow(QMainWindow):
     def __init__(self, position, full_name, parent=None):
@@ -19,6 +21,8 @@ class MainWindow(QMainWindow):
         self.ui.label_pos.setText(position)
         self.ui.exit_btn.clicked.connect(self.exit)
         self.ui.get_order()
+        self.ui.add_ord_btn.clicked.connect(self.add_order)
+        self.ui.upd_ord_btn.clicked.connect(self.get_order)
         self.ui.get_wh()
         self.ui.get_client()
         self.ui.get_service()
@@ -28,8 +32,16 @@ class MainWindow(QMainWindow):
 
         if position == 'Администратор':
             self.ui.stackedWidget.setCurrentIndex(0)
-        elif position == 'Продавец':
-            self.ui.stackedWidget.setCurrentIndex(1)
+            self.ui.label_hist.hide()
+            self.ui.label_emp.hide()
+        elif position == 'Техник':
+            self.ui.stackedWidget.setCurrentIndex(0)
+            self.ui.del_serv_btn.hide()
+            self.ui.save_serv_btn.hide()
+            self.ui.del_empl_btn.hide()
+            self.ui.save_empl_btn.hide()
+            self.ui.history_table.hide()
+            self.ui.empl_table.hide()
 
     def exit(self):
         self.close()
@@ -52,6 +64,10 @@ class MainWindow(QMainWindow):
                     item.setFlags(Qt.ItemIsEnabled)
                 self.ui.order_table.setItem(i, x, item)
         self.ui.order_table.resizeColumnsToContents()
+
+    def add_order(self):
+        add = 'order'
+        win = Add(add)
 
     def get_wh(self):
         self.ui.wh_table.clear()
@@ -101,7 +117,7 @@ class MainWindow(QMainWindow):
         self.ui.service_table.resizeColumnsToContents()
 
     def delete_service(self):
-        SelectedRow = self.ui.service_table.currentRow()
+        selectedrow = self.ui.service_table.currentRow()
         rowcount = self.ui.service_table.rowCount()
         colcount = self.ui.service_table.columnCount()
 
@@ -112,7 +128,7 @@ class MainWindow(QMainWindow):
             msg.setWindowTitle("Ошибка")
             msg.setStandardButtons(QMessageBox.Ok)
             retval = msg.exec_()
-        elif SelectedRow == -1:
+        elif selectedrow == -1:
             msg = QMessageBox(self)
             msg.setIcon(QMessageBox.Warning)
             msg.setText("Выберите поле для удаления!")
@@ -121,7 +137,7 @@ class MainWindow(QMainWindow):
             retval = msg.exec_()
         else:
             for col in range(1, colcount):
-                self.ui.service_table.setItem(SelectedRow, col, QTableWidgetItem(''))
+                self.ui.service_table.setItem(selectedrow, col, QTableWidgetItem(''))
             ix = self.ui.service_table.model().index(-1, -1)
             self.ui.service_table.setCurrentIndex(ix)
 
@@ -180,13 +196,13 @@ class Auth(QDialog):
         data = self.db.get_auth_info(log, pas)
         if data:
             self.ui.hide()
-            surname, name, second_name, position, id = data[0]
+            surname, name, second_name, position, emp_id = data[0]
             full_name = surname + ' ' + name[0] + '.' + second_name[0] + '.'
             main_win = MainWindow(position, full_name)
             date_enter = datetime.datetime.now()
             date_req = str(date_enter.strftime("%d.%m.%Y"))
             time_req = str(date_enter.strftime("%H:%M"))
-            self.db.insert_log(id, date_req, time_req)
+            self.db.insert_log(emp_id, date_req, time_req)
             main_win.setWindowTitle('Станция техобслуживания компьютеров')
 
     def hide_pas(self):
@@ -196,6 +212,87 @@ class Auth(QDialog):
         else:
             self.ui.password.setEchoMode(QLineEdit.Password)
             self.hide_password = True
+
+
+class Add(QWidget):
+    def __init__(self, add, parent=None):
+        super(Add, self).__init__(parent)
+        self.db = Database()
+        self.ui = uic.loadUi("forms/add.ui", self)
+        self.setWindowIcon(QIcon("images/logo.png"))
+        self.ui.setWindowTitle('Добавление')
+        self.ui.show()
+        if add == 'order':
+            self.ui.stackedWidget.setCurrentIndex(0)
+
+        self.build_combobox_client()
+        self.build_combobox_service()
+        self.build_serv_cost()
+        self.build_combobox_kompl()
+        self.build_kompl_cost()
+        self.ui.usluga_box.currentIndexChanged.connect(self.update_serv_cost)
+        self.ui.usluga_box.currentIndexChanged.connect(self.update_sum)
+        self.update_serv_cost()
+        self.ui.kompl_box.currentIndexChanged.connect(self.update_kompl_cost)
+        self.ui.kompl_box.currentIndexChanged.connect(self.update_sum)
+        self.update_kompl_cost()
+        self.update_sum()
+        self.ui.btn_add_order.clicked.connect(self.add_order)
+
+    def build_combobox_client(self):
+        clients = self.db.get_client_cb()
+        self.client_box.clear()
+        if self.client_box is not None:
+            self.client_box.addItems(clients)
+
+    def build_combobox_service(self):
+        services = self.db.get_service_cb()
+        self.usluga_box.clear()
+        if self.usluga_box is not None:
+            self.usluga_box.addItems(services)
+
+    def build_serv_cost(self):
+        self.usl_cost.clear()
+        self.ui.usl_cost.setText(str(self.db.get_serv_c(self.ui.usluga_box.currentText())))
+        self.usl_cost.update()
+        print()
+
+    def build_combobox_kompl(self):
+        kompls = self.db.get_kompl_cb()
+        self.kompl_box.clear()
+        if self.kompl_box is not None:
+            self.kompl_box.addItems(kompls)
+
+    def build_kompl_cost(self):
+        self.kompl_cost.clear()
+        self.ui.kompl_cost.setText(str(self.db.get_kompl_c(self.ui.kompl_box.currentText())))
+        self.kompl_cost.update()
+        print()
+
+    def update_serv_cost(self):
+        service = self.ui.usluga_box.currentText()
+        self.ui.usl_cost.setText(str(self.db.get_serv_c(service)[0][0]))
+
+    def update_kompl_cost(self):
+        kompl = self.ui.kompl_box.currentText()
+        self.ui.kompl_cost.setText(str(self.db.get_kompl_c(kompl)[0][0]))
+
+    def update_sum(self):
+        service_cost = self.ui.usl_cost.text()
+        kompl_cost = self.ui.kompl_cost.text()
+        summary = int(service_cost) + int(kompl_cost)
+        self.ui.summary.setText(str(summary))
+
+    def add_order(self):
+        client = self.ui.client_box.currentText()
+        client_id = int(str(self.db.get_client_id(client))[1:-2])
+        print(client_id)
+        service = self.ui.usluga_box.currentText()
+        service_cost = self.ui.usl_cost.text()
+        kompl = self.ui.kompl_box.currentText()
+        kompl_cost = self.ui.kompl_cost.text()
+        summary = int(service_cost) + int(kompl_cost)
+        self.db.add_order(service, client_id, service_cost, kompl, kompl_cost, summary, emp_id)
 
 
 class Database:
@@ -223,6 +320,73 @@ class Database:
         cursor = self.con.cursor()
         cursor.execute(f"SELECT * FROM order1")
         return cursor.fetchall()
+
+    def get_client_cb(self):
+        clients = []
+        cursor = self.con.cursor()
+        cursor.execute(f"SELECT `cl_name` FROM client")
+        rows = cursor.fetchall()
+
+        for i in rows:
+            clients.append(str(i)[2:-3])
+        return clients
+
+    def get_service_cb(self):
+        services = []
+        cursor = self.con.cursor()
+        cursor.execute(f"SELECT `serv_name` FROM service")
+        rows = cursor.fetchall()
+
+        for i in rows:
+            services.append(str(i)[2:-3])
+        return services
+
+    def get_serv_c(self, service):
+        cur = self.con.cursor()
+        cur.execute(f'SELECT serv_cost FROM service WHERE serv_name="{service}"')
+        serv_c = cur.fetchall()
+        cur.close()
+        return serv_c
+
+    def get_kompl_cb(self):
+        kompls = []
+        cursor = self.con.cursor()
+        cursor.execute(f"SELECT comp_name FROM component")
+        rows = cursor.fetchall()
+
+        for i in rows:
+            kompls.append(str(i)[2:-3])
+        return kompls
+
+    def get_kompl_c(self, kompl):
+        cur = self.con.cursor()
+        cur.execute(f'SELECT comp_cost FROM component WHERE comp_name="{kompl}"')
+        kompl_c = cur.fetchall()
+        cur.close()
+        return kompl_c
+
+    def get_client_id(self, name):
+        cur = self.con.cursor()
+        cur.execute(f'SELECT cl_id FROM client WHERE cl_name="{name}"')
+        cl_id = cur.fetchone()
+        cur.close()
+        print(cl_id)
+        return cl_id
+
+    def add_order(self, service, client, serv_cost, kompl, kompl_cost, summ, emp_id):
+        now = datetime.datetime.now()
+        times = now.strftime("%H:%M")
+        date = now.strftime("%d.%m.20%y")
+        id = 1
+        try:
+            cur = self.con.cursor()
+            cur.execute("""INSERT INTO order1 VALUES (NULL,?,?,?,?,?,?,?,?,?,?)""", (client, service,
+                                                                                    serv_cost, kompl, kompl_cost, summ,
+                                                                                     "Новый заказ", date, times, emp_id))
+            self.con.commit()
+            cur.close()
+        except sqlite3.Error as error:
+            print("Ошибка при работе с SQLite", error)
 
     def get_wh(self):
         cursor = self.con.cursor()
@@ -256,8 +420,6 @@ class Database:
         cursor = self.con.cursor()
         cursor.execute(f"SELECT * FROM history")
         return cursor.fetchall()
-
-
 
 
 if __name__ == '__main__':
