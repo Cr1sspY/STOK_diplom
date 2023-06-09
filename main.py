@@ -49,6 +49,10 @@ class MainWindow(QMainWindow):
         self.close()
         Auth()
 
+    '''
+    Функции, связанные с ЗАКАЗАМИ
+    '''
+
     def get_order(self):
         self.ui.order_table.clear()
         rec = self.db.get_order()
@@ -116,6 +120,10 @@ class MainWindow(QMainWindow):
             data.append(tmp)
         return data
 
+     '''
+     Функции, связанные с КОМПЛЕКТУЮЩИМИ
+     '''
+
     def get_wh(self):
         self.ui.wh_table.clear()
         rec = self.db.get_wh()
@@ -132,6 +140,10 @@ class MainWindow(QMainWindow):
                 self.ui.wh_table.setItem(i, x, item)
         self.ui.wh_table.resizeColumnsToContents()
 
+    '''
+    Функции, связанные с КЛИЕНТАМИ
+    '''
+
     def get_client(self):
         self.ui.client_table.clear()
         rec = self.db.get_client()
@@ -146,6 +158,10 @@ class MainWindow(QMainWindow):
                     item.setFlags(Qt.ItemIsEnabled)
                 self.ui.client_table.setItem(i, x, item)
         self.ui.client_table.resizeColumnsToContents()
+
+    '''
+    Функции, связанные с УСЛУГАМИ
+    '''
 
     def get_service(self):
         self.ui.service_table.clear()
@@ -207,6 +223,10 @@ class MainWindow(QMainWindow):
                 tmp.append(self.service_table.item(row, col).text())
             data.append(tmp)
         return data
+
+    '''
+    Функции, связанные с ИСТОРИЕЙ
+    '''
 
     def get_history(self):
         self.ui.history_table.clear()
@@ -365,6 +385,10 @@ class Database:
         self.con.commit()
         cur.close()
 
+    '''
+    Функции, связанные с ЗАКАЗАМИ
+    '''
+
     def get_order(self):
         cursor = self.con.cursor()
         cursor.execute(f"SELECT * FROM order1")
@@ -463,10 +487,18 @@ class Database:
         self.con.commit()
         cur.close()
 
+    '''
+    Функции, связанные с КОМПЛЕКТУЮЩИМИ
+    '''
+
     def get_wh(self):
         cursor = self.con.cursor()
         cursor.execute(f"SELECT * FROM component")
         return cursor.fetchall()
+
+    '''
+    Функции, связанные с КЛИЕНТАМИ
+    '''
 
     def get_client(self):
         cursor = self.con.cursor()
