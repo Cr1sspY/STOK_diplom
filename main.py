@@ -120,9 +120,7 @@ class MainWindow(QMainWindow):
             data.append(tmp)
         return data
 
-     '''
-     Функции, связанные с КОМПЛЕКТУЮЩИМИ
-     '''
+     #Функции, связанные с КОМПЛЕКТУЮЩИМИ
 
     def get_wh(self):
         self.ui.wh_table.clear()
@@ -390,9 +388,49 @@ class Database:
     '''
 
     def get_order(self):
+        orders = []
         cursor = self.con.cursor()
         cursor.execute(f"SELECT * FROM order1")
-        return cursor.fetchall()
+        data = cursor.fetchall()
+        for i in data:
+            list_data = list(i)
+            for x, j in enumerate(i):
+                if x == 1:
+                    list_data[1] = str(self.get_name_client(j))[1:-1]
+                if x == 2:
+                    list_data[2] = str(self.get_name_service(j))[1:-1]
+                if x == 4:
+                    list_data[4] = str(self.get_name_komp(j))[1:-1]
+                if x == 10:
+                    list_data[10] = str(self.get_name_emp(j))[1:-1]
+                else:
+                    continue
+                orders.append(list_data)
+        return orders
+
+    def get_name_client(self, id):
+        cursor = self.con.cursor()
+        cursor.execute(f"SELECT `cl_name` FROM client WHERE `cl_id`='{id}'")
+        name = cursor.fetchone()
+        return str(name)[1:-2]
+
+    def get_name_service(self, id):
+        cursor = self.con.cursor()
+        cursor.execute(f"SELECT `serv_name` FROM service WHERE `serv_id`='{id}'")
+        name = cursor.fetchone()
+        return str(name)[1:-2]
+
+    def get_name_emp(self, id):
+        cursor = self.con.cursor()
+        cursor.execute(f"SELECT `surname` FROM employee WHERE `emp_id`='{id}'")
+        name = cursor.fetchone()
+        return str(name)[1:-2]
+
+    def get_name_komp(self, id):
+        cursor = self.con.cursor()
+        cursor.execute(f"SELECT `comp_name` FROM component WHERE `comp_id`='{id}'")
+        name = cursor.fetchone()
+        return str(name)[1:-2]
 
     def get_client_cb(self):
         clients = []
@@ -524,9 +562,20 @@ class Database:
         cur.close()
 
     def get_history(self):
+        emp = []
         cursor = self.con.cursor()
         cursor.execute(f"SELECT * FROM history")
-        return cursor.fetchall()
+        data = cursor.fetchall()
+        for i in data:
+            list_data = list(i)
+            for x, j in enumerate(i):
+                if x == 1:
+                    list_data[1] = str(self.get_name_emp(j))[1:-1]
+                else:
+                    continue
+                emp.append(list_data)
+
+        return emp
 
 
 if __name__ == '__main__':
