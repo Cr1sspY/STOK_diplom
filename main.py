@@ -23,6 +23,8 @@ class MainWindow(QMainWindow):
         self.ui.get_order()
         self.ui.add_ord_btn.clicked.connect(self.add_order)
         self.ui.upd_ord_btn.clicked.connect(self.get_order)
+        self.ui.del_ord_btn.clicked.connect(self.delete_order)
+        self.ui.save_ord_btn.clicked.connect(self.save_order)
         self.ui.get_wh()
         self.ui.get_client()
         self.ui.get_service()
@@ -68,6 +70,51 @@ class MainWindow(QMainWindow):
     def add_order(self):
         add = 'order'
         win = Add(add)
+
+    def delete_order(self):
+        selectedrow = self.ui.order_table.currentRow()
+        rowcount = self.ui.order_table.rowCount()
+        colcount = self.ui.order_table.columnCount()
+
+        if rowcount == 0:
+            msg = QMessageBox(self)
+            msg.setIcon(QMessageBox.Warning)
+            msg.setText("В таблице нет данных!")
+            msg.setWindowTitle("Ошибка")
+            msg.setStandardButtons(QMessageBox.Ok)
+            retval = msg.exec_()
+        elif selectedrow == -1:
+            msg = QMessageBox(self)
+            msg.setIcon(QMessageBox.Warning)
+            msg.setText("Выберите поле для удаления!")
+            msg.setWindowTitle("Ошибка")
+            msg.setStandardButtons(QMessageBox.Ok)
+            retval = msg.exec_()
+        else:
+            for col in range(1, colcount):
+                self.ui.order_table.setItem(selectedrow, col, QTableWidgetItem(''))
+            ix = self.ui.order_table.model().index(-1, -1)
+            self.ui.order_table.setCurrentIndex(ix)
+
+    def save_order(self):
+        data = self.get_order_tbl()
+        for string in data:
+            if string[1] != '':                     # если название услуги есть, то обновляем данные
+                self.db.update_order(string[0], string[7])
+            else:                                   # если названия услуги нет, то удаляем эту строку
+                self.db.delete_order(string[0])
+        self.get_order()
+
+    def get_order_tbl(self):
+        rows = self.ui.order_table.rowCount()     # получаем кол-во строк таблицы
+        cols = self.ui.order_table.columnCount()  # получаем кол-во столбцов таблицы
+        data = []
+        for row in range(rows):
+            tmp = []
+            for col in range(cols):
+                tmp.append(self.order_table.item(row, col).text())
+            data.append(tmp)
+        return data
 
     def get_wh(self):
         self.ui.wh_table.clear()
@@ -196,6 +243,7 @@ class Auth(QDialog):
         data = self.db.get_auth_info(log, pas)
         if data:
             self.ui.hide()
+            global emp_id
             surname, name, second_name, position, emp_id = data[0]
             full_name = surname + ' ' + name[0] + '.' + second_name[0] + '.'
             main_win = MainWindow(position, full_name)
@@ -401,6 +449,19 @@ class Database:
             cur.close()
         except sqlite3.Error as error:
             print("Ошибка при работе с SQLite", error)
+
+    def delete_order(self, id):
+        cur = self.con.cursor()
+        cur.execute(f'DELETE from order1 WHERE ord_id="{id}"')
+        self.con.commit()
+        cur.close()
+
+    def update_order(self, id, status):
+        id = int(id)
+        cur = self.con.cursor()
+        cur.execute(f'UPDATE order1 set status="{status}" WHERE ord_id="{id}"')
+        self.con.commit()
+        cur.close()
 
     def get_wh(self):
         cursor = self.con.cursor()
