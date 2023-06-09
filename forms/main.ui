@@ -220,8 +220,11 @@
                   </item>
                   <item row="4" column="0">
                    <widget class="QPushButton" name="upd_ord_btn">
+                    <property name="styleSheet">
+                     <string notr="true">background-color: rgb(238, 130, 238);</string>
+                    </property>
                     <property name="text">
-                     <string>PushButton</string>
+                     <string>Обновить</string>
                     </property>
                    </widget>
                   </item>

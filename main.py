@@ -286,13 +286,14 @@ class Add(QWidget):
     def add_order(self):
         client = self.ui.client_box.currentText()
         client_id = int(str(self.db.get_client_id(client))[1:-2])
-        print(client_id)
         service = self.ui.usluga_box.currentText()
+        service_id = int(str(self.db.get_service_id(service))[1:-2])
         service_cost = self.ui.usl_cost.text()
         kompl = self.ui.kompl_box.currentText()
+        kompl_id = int(str(self.db.get_kompl_id(kompl))[1:-2])
         kompl_cost = self.ui.kompl_cost.text()
         summary = int(service_cost) + int(kompl_cost)
-        self.db.add_order(service, client_id, service_cost, kompl, kompl_cost, summary, emp_id)
+        self.db.add_order(service_id, client_id, service_cost, kompl_id, kompl_cost, summary, emp_id)
 
 
 class Database:
@@ -370,8 +371,21 @@ class Database:
         cur.execute(f'SELECT cl_id FROM client WHERE cl_name="{name}"')
         cl_id = cur.fetchone()
         cur.close()
-        print(cl_id)
         return cl_id
+
+    def get_service_id(self, name):
+        cur = self.con.cursor()
+        cur.execute(f'SELECT serv_id FROM service WHERE serv_name="{name}"')
+        serv_id = cur.fetchone()
+        cur.close()
+        return serv_id
+
+    def get_kompl_id(self, name):
+        cur = self.con.cursor()
+        cur.execute(f'SELECT comp_id FROM component WHERE comp_name="{name}"')
+        kompl_id = cur.fetchone()
+        cur.close()
+        return kompl_id
 
     def add_order(self, service, client, serv_cost, kompl, kompl_cost, summ, emp_id):
         now = datetime.datetime.now()
