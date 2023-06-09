@@ -70,6 +70,7 @@ class MainWindow(QMainWindow):
                     item.setFlags(Qt.ItemIsEnabled)
                 self.ui.order_table.setItem(i, x, item)
         self.ui.order_table.resizeColumnsToContents()
+        self.order_table.setSortingEnabled(True)
 
     def add_order(self):
         add = 'order'
@@ -120,7 +121,7 @@ class MainWindow(QMainWindow):
             data.append(tmp)
         return data
 
-     #Функции, связанные с КОМПЛЕКТУЮЩИМИ
+     # Функции, связанные с КОМПЛЕКТУЮЩИМИ
 
     def get_wh(self):
         self.ui.wh_table.clear()
@@ -137,6 +138,7 @@ class MainWindow(QMainWindow):
                     item.setFlags(Qt.ItemIsEnabled)
                 self.ui.wh_table.setItem(i, x, item)
         self.ui.wh_table.resizeColumnsToContents()
+        self.wh_table.setSortingEnabled(True)
 
     '''
     Функции, связанные с КЛИЕНТАМИ
@@ -156,6 +158,7 @@ class MainWindow(QMainWindow):
                     item.setFlags(Qt.ItemIsEnabled)
                 self.ui.client_table.setItem(i, x, item)
         self.ui.client_table.resizeColumnsToContents()
+        self.client_table.setSortingEnabled(True)
 
     '''
     Функции, связанные с УСЛУГАМИ
@@ -176,6 +179,7 @@ class MainWindow(QMainWindow):
                     item.setFlags(Qt.ItemIsEnabled)
                 self.ui.service_table.setItem(i, x, item)
         self.ui.service_table.resizeColumnsToContents()
+        self.service_table.setSortingEnabled(True)
 
     def delete_service(self):
         selectedrow = self.ui.service_table.currentRow()
@@ -229,9 +233,9 @@ class MainWindow(QMainWindow):
     def get_history(self):
         self.ui.history_table.clear()
         rec = self.db.get_history()
-        self.ui.history_table.setColumnCount(4)
+        self.ui.history_table.setColumnCount(3)
         self.ui.history_table.setRowCount(len(rec))
-        self.ui.history_table.setHorizontalHeaderLabels(['ID входа', 'Пользователь', 'Дата входа', 'Время входа'])
+        self.ui.history_table.setHorizontalHeaderLabels(['Пользователь', 'Дата входа', 'Время входа'])
 
         for i, history in enumerate(rec):
             for x, field in enumerate(history):
@@ -241,6 +245,7 @@ class MainWindow(QMainWindow):
                     item.setFlags(Qt.ItemIsEnabled)
                 self.ui.history_table.setItem(i, x, item)
         self.ui.history_table.resizeColumnsToContents()
+        self.history_table.setSortingEnabled(True)
 
 
 class Auth(QDialog):
@@ -254,12 +259,16 @@ class Auth(QDialog):
         self.enter_btn.clicked.connect(self.auth)
         self.sh_pw_btn.clicked.connect(self.hide_pas)
         self.hide_password = True
+        self.exit_btn.clicked.connect(self.exit)
 
     def auth(self):
         log = self.ui.login.text()
         pas = self.ui.password.text()
         data = self.db.get_auth_info(log, pas)
         if data:
+            type = 'Успех!'
+            text = 'Вы вошли в систему'
+            self.mes_box(type, text)
             self.ui.hide()
             global emp_id
             surname, name, second_name, position, emp_id = data[0]
@@ -270,6 +279,15 @@ class Auth(QDialog):
             time_req = str(date_enter.strftime("%H:%M"))
             self.db.insert_log(emp_id, date_req, time_req)
             main_win.setWindowTitle('Станция техобслуживания компьютеров')
+        elif log == '' or pas == '':
+            type = 'Ошибка'
+            text = 'Поля не могут быть пустыми!'
+            self.mes_box(type, text)
+        else:
+            type = 'Ошибка'
+            text = 'Проверьте корректность введённых данных'
+            self.mes_box(type, text)
+
 
     def hide_pas(self):
         if self.hide_password:
@@ -278,6 +296,16 @@ class Auth(QDialog):
         else:
             self.ui.password.setEchoMode(QLineEdit.Password)
             self.hide_password = True
+
+    def mes_box(self, type, text):
+        messagebox = QMessageBox(self)
+        messagebox.setWindowTitle(type)
+        messagebox.setText(text)
+        messagebox.setStandardButtons(QMessageBox.Ok)
+        messagebox.show()
+
+    def exit(self):
+        sys.exit()
 
 
 class Add(QWidget):
@@ -304,6 +332,13 @@ class Add(QWidget):
         self.update_kompl_cost()
         self.update_sum()
         self.ui.btn_add_order.clicked.connect(self.add_order)
+
+    def mes_box(self, type, text):
+        messagebox = QMessageBox(self)
+        messagebox.setWindowTitle(type)
+        messagebox.setText(text)
+        messagebox.setStandardButtons(QMessageBox.Ok)
+        messagebox.show()
 
     def build_combobox_client(self):
         clients = self.db.get_client_cb()
@@ -360,6 +395,10 @@ class Add(QWidget):
         kompl_cost = self.ui.kompl_cost.text()
         summary = int(service_cost) + int(kompl_cost)
         self.db.add_order(service_id, client_id, service_cost, kompl_id, kompl_cost, summary, emp_id)
+        type = 'Оформление заказа'
+        text = 'Заказ успешно оформлен. Нажмите кнопку "Обновить".'
+        self.mes_box(type, text)
+        self.close()
 
 
 class Database:
@@ -368,7 +407,8 @@ class Database:
 
     def get_auth_info(self, log, pas):
         cur = self.con.cursor()
-        cur.execute(f'SELECT surname, name, second_name, position, emp_id FROM employee WHERE login="{log}" and password="{pas}"')
+        cur.execute(f'SELECT surname, name, second_name, position, emp_id FROM employee WHERE login="{log}"'
+                    f' and password="{pas}"')
         data = cur.fetchall()
         cur.close()
 
@@ -564,18 +604,24 @@ class Database:
     def get_history(self):
         emp = []
         cursor = self.con.cursor()
-        cursor.execute(f"SELECT * FROM history")
+        cursor.execute(f"SELECT employee, enter_date, enter_time FROM history")
         data = cursor.fetchall()
         for i in data:
             list_data = list(i)
             for x, j in enumerate(i):
-                if x == 1:
-                    list_data[1] = str(self.get_name_emp(j))[1:-1]
+                if x == 0:
+                    list_data[0] = str(self.get_login_emp(j))[1:-1]
                 else:
                     continue
                 emp.append(list_data)
 
         return emp
+
+    def get_login_emp(self, id):
+        cursor = self.con.cursor()
+        cursor.execute(f"SELECT `login` FROM employee WHERE `emp_id`='{id}'")
+        name = cursor.fetchone()
+        return str(name)[1:-2]
 
 
 if __name__ == '__main__':
