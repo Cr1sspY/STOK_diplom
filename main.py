@@ -26,6 +26,10 @@ class MainWindow(QMainWindow):
         self.ui.del_ord_btn.clicked.connect(self.delete_order)
         self.ui.save_ord_btn.clicked.connect(self.save_order)
         self.ui.get_wh()
+        self.ui.add_wh_btn.clicked.connect(self.add_wh)
+        self.ui.upd_wh_btn.clicked.connect(self.get_wh)
+        self.ui.del_wh_btn.clicked.connect(self.delete_wh)
+        self.ui.save_wh_btn.clicked.connect(self.save_wh)
         self.ui.get_client()
         self.ui.get_service()
         self.ui.del_serv_btn.clicked.connect(self.delete_service)
@@ -139,6 +143,55 @@ class MainWindow(QMainWindow):
                 self.ui.wh_table.setItem(i, x, item)
         self.ui.wh_table.resizeColumnsToContents()
         self.wh_table.setSortingEnabled(True)
+
+    def add_wh(self):
+        add = 'wh'
+        win = Add(add)
+
+    def delete_wh(self):
+        selectedrow = self.ui.wh_table.currentRow()
+        rowcount = self.ui.wh_table.rowCount()
+        colcount = self.ui.wh_table.columnCount()
+
+        if rowcount == 0:
+            msg = QMessageBox(self)
+            msg.setIcon(QMessageBox.Warning)
+            msg.setText("В таблице нет данных!")
+            msg.setWindowTitle("Ошибка")
+            msg.setStandardButtons(QMessageBox.Ok)
+            retval = msg.exec_()
+        elif selectedrow == -1:
+            msg = QMessageBox(self)
+            msg.setIcon(QMessageBox.Warning)
+            msg.setText("Выберите поле для удаления!")
+            msg.setWindowTitle("Ошибка")
+            msg.setStandardButtons(QMessageBox.Ok)
+            retval = msg.exec_()
+        else:
+            for col in range(1, colcount):
+                self.ui.wh_table.setItem(selectedrow, col, QTableWidgetItem(''))
+            ix = self.ui.wh_table.model().index(-1, -1)
+            self.ui.wh_table.setCurrentIndex(ix)
+
+    def save_wh(self):
+        data = self.get_wh_tbl()
+        for string in data:
+            if string[1] != '':     # если название услуги есть, то обновляем данные
+                self.db.update_wh(string[0], string[1], string[2], string[3], string[4])
+            else:                   # если названия услуги нет, то удаляем эту строку
+                self.db.delete_wh(string[0])
+        self.get_wh()
+
+    def get_wh_tbl(self):
+        rows = self.ui.wh_table.rowCount()     # получаем кол-во строк таблицы
+        cols = self.ui.wh_table.columnCount()  # получаем кол-во столбцов таблицы
+        data = []
+        for row in range(rows):
+            tmp = []
+            for col in range(cols):
+                tmp.append(self.wh_table.item(row, col).text())
+            data.append(tmp)
+        return data
 
     '''
     Функции, связанные с КЛИЕНТАМИ
@@ -254,7 +307,7 @@ class Auth(QDialog):
         self.db = Database()
         self.ui = uic.loadUi("forms/auth.ui", self)
         self.setWindowIcon(QIcon("images/logo.png"))
-        self.ui.setWindowTitle('Авторизация')
+        self.ui.setWindowTitle('Авторизация — СТОК')
         self.ui.show()
         self.enter_btn.clicked.connect(self.auth)
         self.sh_pw_btn.clicked.connect(self.hide_pas)
@@ -267,7 +320,7 @@ class Auth(QDialog):
         data = self.db.get_auth_info(log, pas)
         if data:
             type = 'Успех!'
-            text = 'Вы вошли в систему'
+            text = 'Вы успешно вошли в систему.'
             self.mes_box(type, text)
             self.ui.hide()
             global emp_id
@@ -285,9 +338,8 @@ class Auth(QDialog):
             self.mes_box(type, text)
         else:
             type = 'Ошибка'
-            text = 'Проверьте корректность введённых данных'
+            text = 'Проверьте корректность введённых данных.'
             self.mes_box(type, text)
-
 
     def hide_pas(self):
         if self.hide_password:
@@ -318,6 +370,8 @@ class Add(QWidget):
         self.ui.show()
         if add == 'order':
             self.ui.stackedWidget.setCurrentIndex(0)
+        elif add == 'wh':
+            self.ui.stackedWidget.setCurrentIndex(1)
 
         self.build_combobox_client()
         self.build_combobox_service()
@@ -332,6 +386,7 @@ class Add(QWidget):
         self.update_kompl_cost()
         self.update_sum()
         self.ui.btn_add_order.clicked.connect(self.add_order)
+        self.ui.btn_add_wh.clicked.connect(self.add_wh)
 
     def mes_box(self, type, text):
         messagebox = QMessageBox(self)
@@ -399,6 +454,18 @@ class Add(QWidget):
         text = 'Заказ успешно оформлен. Нажмите кнопку "Обновить".'
         self.mes_box(type, text)
         self.close()
+
+    def add_wh(self):
+        comp_type = self.ui.line_wh_type.text()
+        name = self.ui.line_wh_name.text()
+        qua = self.ui.spin_wh_qua.value()
+        cost = self.ui.spin_wh_cost.value()
+        self.db.add_wh(comp_type, name, qua, cost)
+        type = 'Добавление на склад'
+        text = 'Комплектующая успешно добавлена. Нажмите кнопку "Обновить".'
+        self.mes_box(type, text)
+        self.close()
+
 
 
 class Database:
@@ -573,6 +640,30 @@ class Database:
         cursor = self.con.cursor()
         cursor.execute(f"SELECT * FROM component")
         return cursor.fetchall()
+
+    def add_wh(self, comp_type, name, qua, cost):
+        id = 1
+        try:
+            cur = self.con.cursor()
+            cur.execute("""INSERT INTO component VALUES (NULL,?,?,?,?)""", (comp_type, name, qua, cost))
+            self.con.commit()
+            cur.close()
+        except sqlite3.Error as error:
+            print("Ошибка при работе с SQLite", error)
+
+    def delete_wh(self, id):
+        cur = self.con.cursor()
+        cur.execute(f'DELETE from component WHERE comp_id="{id}"')
+        self.con.commit()
+        cur.close()
+
+    def update_wh(self, id, type, name, qua, cost):
+        id = int(id)
+        cur = self.con.cursor()
+        cur.execute(f'UPDATE component set comp_type="{type}", comp_name="{name}", quantity="{qua}", comp_cost="{cost}"'
+                    f'WHERE comp_id="{id}"')
+        self.con.commit()
+        cur.close()
 
     '''
     Функции, связанные с КЛИЕНТАМИ

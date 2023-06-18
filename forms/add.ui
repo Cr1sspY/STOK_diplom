@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>478</width>
-    <height>276</height>
+    <width>456</width>
+    <height>261</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -17,7 +17,7 @@
    <string notr="true">background-color: rgb(230, 230, 250);</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
-   <item row="0" column="0">
+   <item row="1" column="0">
     <widget class="QStackedWidget" name="stackedWidget">
      <property name="font">
       <font>
@@ -28,26 +28,39 @@
       <string/>
      </property>
      <property name="currentIndex">
-      <number>0</number>
+      <number>1</number>
      </property>
      <widget class="QWidget" name="page">
       <layout class="QGridLayout" name="gridLayout_2">
-       <item row="0" column="0">
-        <widget class="QLabel" name="label_5">
+       <item row="2" column="0">
+        <widget class="QLabel" name="label_17">
          <property name="font">
           <font>
            <family>MS Shell Dlg 2</family>
            <pointsize>11</pointsize>
-           <weight>50</weight>
-           <italic>false</italic>
-           <bold>false</bold>
           </font>
          </property>
          <property name="styleSheet">
           <string notr="true"/>
          </property>
          <property name="text">
-          <string>Клиент:</string>
+          <string>Стоимость услуги:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="1">
+        <widget class="QComboBox" name="usluga_box">
+         <property name="font">
+          <font>
+           <family>MS Shell Dlg 2</family>
+           <pointsize>11</pointsize>
+          </font>
+         </property>
+         <property name="focusPolicy">
+          <enum>Qt::NoFocus</enum>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">background-color: rgb(249, 174, 255);</string>
          </property>
         </widget>
        </item>
@@ -86,35 +99,22 @@
          </property>
         </widget>
        </item>
-       <item row="1" column="1">
-        <widget class="QComboBox" name="usluga_box">
+       <item row="0" column="0">
+        <widget class="QLabel" name="label_5">
          <property name="font">
           <font>
            <family>MS Shell Dlg 2</family>
            <pointsize>11</pointsize>
-          </font>
-         </property>
-         <property name="focusPolicy">
-          <enum>Qt::NoFocus</enum>
-         </property>
-         <property name="styleSheet">
-          <string notr="true">background-color: rgb(249, 174, 255);</string>
-         </property>
-        </widget>
-       </item>
-       <item row="2" column="0">
-        <widget class="QLabel" name="label_17">
-         <property name="font">
-          <font>
-           <family>MS Shell Dlg 2</family>
-           <pointsize>11</pointsize>
+           <weight>50</weight>
+           <italic>false</italic>
+           <bold>false</bold>
           </font>
          </property>
          <property name="styleSheet">
           <string notr="true"/>
          </property>
          <property name="text">
-          <string>Стоимость услуги:</string>
+          <string>Клиент:</string>
          </property>
         </widget>
        </item>
@@ -182,8 +182,8 @@
          </property>
         </widget>
        </item>
-       <item row="4" column="1">
-        <widget class="QLabel" name="kompl_cost">
+       <item row="5" column="1">
+        <widget class="QLabel" name="summary">
          <property name="font">
           <font>
            <family>MS Shell Dlg 2</family>
@@ -194,7 +194,7 @@
           <string notr="true">background-color: rgb(249, 174, 255);</string>
          </property>
          <property name="text">
-          <string>*стоимость компл тут*</string>
+          <string>*сумма тут*</string>
          </property>
         </widget>
        </item>
@@ -214,8 +214,8 @@
          </property>
         </widget>
        </item>
-       <item row="5" column="1">
-        <widget class="QLabel" name="summary">
+       <item row="4" column="1">
+        <widget class="QLabel" name="kompl_cost">
          <property name="font">
           <font>
            <family>MS Shell Dlg 2</family>
@@ -226,29 +226,155 @@
           <string notr="true">background-color: rgb(249, 174, 255);</string>
          </property>
          <property name="text">
-          <string>*сумма тут*</string>
+          <string>*стоимость компл тут*</string>
+         </property>
+        </widget>
+       </item>
+       <item row="6" column="0" colspan="2">
+        <widget class="QPushButton" name="btn_add_order">
+         <property name="font">
+          <font>
+           <family>MS Shell Dlg 2</family>
+           <pointsize>11</pointsize>
+          </font>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">background-color: rgb(238, 130, 238);</string>
+         </property>
+         <property name="text">
+          <string>Добавить заказ</string>
          </property>
         </widget>
        </item>
       </layout>
      </widget>
-     <widget class="QWidget" name="page_2"/>
-    </widget>
-   </item>
-   <item row="1" column="0">
-    <widget class="QPushButton" name="btn_add_order">
-     <property name="font">
-      <font>
-       <family>MS Shell Dlg 2</family>
-       <pointsize>11</pointsize>
-      </font>
-     </property>
-     <property name="styleSheet">
-      <string notr="true">background-color: rgb(238, 130, 238);</string>
-     </property>
-     <property name="text">
-      <string>Добавить заказ</string>
-     </property>
+     <widget class="QWidget" name="page_2">
+      <layout class="QFormLayout" name="formLayout">
+       <item row="0" column="0">
+        <widget class="QLabel" name="label">
+         <property name="font">
+          <font>
+           <pointsize>11</pointsize>
+          </font>
+         </property>
+         <property name="text">
+          <string>Тип комплектующей:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="1">
+        <widget class="QLineEdit" name="line_wh_type">
+         <property name="font">
+          <font>
+           <pointsize>11</pointsize>
+          </font>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">background-color: rgb(249, 174, 255);</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0">
+        <widget class="QLabel" name="label_2">
+         <property name="font">
+          <font>
+           <pointsize>11</pointsize>
+          </font>
+         </property>
+         <property name="text">
+          <string>Название:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="1">
+        <widget class="QLineEdit" name="line_wh_name">
+         <property name="font">
+          <font>
+           <pointsize>11</pointsize>
+          </font>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">background-color: rgb(249, 174, 255);</string>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="0">
+        <widget class="QLabel" name="label_3">
+         <property name="font">
+          <font>
+           <pointsize>11</pointsize>
+          </font>
+         </property>
+         <property name="text">
+          <string>Количество:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="1">
+        <widget class="QSpinBox" name="spin_wh_qua">
+         <property name="font">
+          <font>
+           <pointsize>11</pointsize>
+          </font>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">background-color: rgb(249, 174, 255);</string>
+         </property>
+         <property name="minimum">
+          <number>0</number>
+         </property>
+         <property name="maximum">
+          <number>1000</number>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="0">
+        <widget class="QLabel" name="label_4">
+         <property name="font">
+          <font>
+           <pointsize>11</pointsize>
+          </font>
+         </property>
+         <property name="text">
+          <string>Стоимость:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="1">
+        <widget class="QSpinBox" name="spin_wh_cost">
+         <property name="font">
+          <font>
+           <pointsize>11</pointsize>
+          </font>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">background-color: rgb(249, 174, 255);</string>
+         </property>
+         <property name="minimum">
+          <number>1</number>
+         </property>
+         <property name="maximum">
+          <number>200000</number>
+         </property>
+        </widget>
+       </item>
+       <item row="4" column="0" colspan="2">
+        <widget class="QPushButton" name="btn_add_wh">
+         <property name="font">
+          <font>
+           <pointsize>11</pointsize>
+          </font>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">background-color: rgb(238, 130, 238);</string>
+         </property>
+         <property name="text">
+          <string>Добавить на склад</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
     </widget>
    </item>
   </layout>
