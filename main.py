@@ -503,7 +503,7 @@ class Add(QWidget):
             self.ui.stackedWidget.setCurrentIndex(1)
         elif add == 'client':
             self.ui.stackedWidget.setCurrentIndex(2)
-        elif add == 'service':
+        elif add == 'serv':
             self.ui.stackedWidget.setCurrentIndex(3)
         elif add == 'emp':
             self.ui.stackedWidget.setCurrentIndex(4)
