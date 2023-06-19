@@ -93,6 +93,11 @@
         </item>
         <item>
          <widget class="QLabel" name="label_6">
+          <property name="font">
+           <font>
+            <pointsize>12</pointsize>
+           </font>
+          </property>
           <property name="text">
            <string>Станция техобслуживания компьютеров</string>
           </property>
@@ -174,7 +179,7 @@
                  <string notr="true"/>
                 </property>
                 <property name="currentIndex">
-                 <number>1</number>
+                 <number>0</number>
                 </property>
                 <widget class="QWidget" name="admin_orders_tab">
                  <attribute name="title">
@@ -289,14 +294,7 @@
                   <string>Клиенты</string>
                  </attribute>
                  <layout class="QGridLayout" name="gridLayout_7">
-                  <item row="0" column="0">
-                   <widget class="QTableWidget" name="client_table">
-                    <attribute name="horizontalHeaderStretchLastSection">
-                     <bool>true</bool>
-                    </attribute>
-                   </widget>
-                  </item>
-                  <item row="1" column="0">
+                  <item row="2" column="0">
                    <widget class="QPushButton" name="del_cl_btn">
                     <property name="styleSheet">
                      <string notr="true">background-color: rgb(238, 130, 238);</string>
@@ -306,13 +304,40 @@
                     </property>
                    </widget>
                   </item>
-                  <item row="2" column="0">
+                  <item row="4" column="0">
                    <widget class="QPushButton" name="save_cl_btn">
                     <property name="styleSheet">
                      <string notr="true">background-color: rgb(238, 130, 238);</string>
                     </property>
                     <property name="text">
                      <string>Сохранить</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="0" column="0">
+                   <widget class="QTableWidget" name="client_table">
+                    <attribute name="horizontalHeaderStretchLastSection">
+                     <bool>true</bool>
+                    </attribute>
+                   </widget>
+                  </item>
+                  <item row="3" column="0">
+                   <widget class="QPushButton" name="upd_client_btn">
+                    <property name="styleSheet">
+                     <string notr="true">background-color: rgb(238, 130, 238);</string>
+                    </property>
+                    <property name="text">
+                     <string>Обновить</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="1" column="0">
+                   <widget class="QPushButton" name="add_client_btn">
+                    <property name="styleSheet">
+                     <string notr="true">background-color: rgb(238, 130, 238);</string>
+                    </property>
+                    <property name="text">
+                     <string>Новый клиент</string>
                     </property>
                    </widget>
                   </item>
@@ -323,6 +348,16 @@
                   <string>Услуги</string>
                  </attribute>
                  <layout class="QGridLayout" name="gridLayout_6">
+                  <item row="4" column="0">
+                   <widget class="QPushButton" name="save_serv_btn">
+                    <property name="styleSheet">
+                     <string notr="true">background-color: rgb(238, 130, 238);</string>
+                    </property>
+                    <property name="text">
+                     <string>Сохранить</string>
+                    </property>
+                   </widget>
+                  </item>
                   <item row="0" column="0">
                    <widget class="QTableWidget" name="service_table">
                     <attribute name="horizontalHeaderStretchLastSection">
@@ -345,7 +380,7 @@
                     </column>
                    </widget>
                   </item>
-                  <item row="1" column="0">
+                  <item row="2" column="0">
                    <widget class="QPushButton" name="del_serv_btn">
                     <property name="styleSheet">
                      <string notr="true">background-color: rgb(238, 130, 238);</string>
@@ -355,13 +390,23 @@
                     </property>
                    </widget>
                   </item>
-                  <item row="2" column="0">
-                   <widget class="QPushButton" name="save_serv_btn">
+                  <item row="1" column="0">
+                   <widget class="QPushButton" name="add_serv_btn">
                     <property name="styleSheet">
                      <string notr="true">background-color: rgb(238, 130, 238);</string>
                     </property>
                     <property name="text">
-                     <string>Сохранить</string>
+                     <string>Добавить услугу</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="3" column="0">
+                   <widget class="QPushButton" name="upd_serv_btn">
+                    <property name="styleSheet">
+                     <string notr="true">background-color: rgb(238, 130, 238);</string>
+                    </property>
+                    <property name="text">
+                     <string>Обновить</string>
                     </property>
                    </widget>
                   </item>
@@ -401,7 +446,7 @@
                   <string>Сотрудники</string>
                  </attribute>
                  <layout class="QGridLayout" name="gridLayout_8">
-                  <item row="1" column="0">
+                  <item row="2" column="0">
                    <widget class="QPushButton" name="del_empl_btn">
                     <property name="styleSheet">
                      <string notr="true">background-color: rgb(238, 130, 238);</string>
@@ -414,7 +459,7 @@
                   <item row="0" column="0">
                    <widget class="QTableWidget" name="empl_table"/>
                   </item>
-                  <item row="2" column="0">
+                  <item row="4" column="0">
                    <widget class="QPushButton" name="save_empl_btn">
                     <property name="styleSheet">
                      <string notr="true">background-color: rgb(238, 130, 238);</string>
@@ -424,7 +469,7 @@
                     </property>
                    </widget>
                   </item>
-                  <item row="3" column="0">
+                  <item row="5" column="0">
                    <widget class="QLabel" name="label_emp">
                     <property name="font">
                      <font>
@@ -436,6 +481,26 @@
                     </property>
                     <property name="alignment">
                      <set>Qt::AlignCenter</set>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="1" column="0">
+                   <widget class="QPushButton" name="add_emp_btn">
+                    <property name="styleSheet">
+                     <string notr="true">background-color: rgb(238, 130, 238);</string>
+                    </property>
+                    <property name="text">
+                     <string>Новый сотрудник</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="3" column="0">
+                   <widget class="QPushButton" name="upd_emp_btn">
+                    <property name="styleSheet">
+                     <string notr="true">background-color: rgb(238, 130, 238);</string>
+                    </property>
+                    <property name="text">
+                     <string>Обновить</string>
                     </property>
                    </widget>
                   </item>

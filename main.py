@@ -31,10 +31,21 @@ class MainWindow(QMainWindow):
         self.ui.del_wh_btn.clicked.connect(self.delete_wh)
         self.ui.save_wh_btn.clicked.connect(self.save_wh)
         self.ui.get_client()
+        self.ui.add_client_btn.clicked.connect(self.add_client)
+        self.ui.upd_client_btn.clicked.connect(self.get_client)
+        self.ui.del_cl_btn.clicked.connect(self.delete_client)
+        self.ui.save_cl_btn.clicked.connect(self.save_client)
         self.ui.get_service()
         self.ui.del_serv_btn.clicked.connect(self.delete_service)
+        self.ui.add_serv_btn.clicked.connect(self.add_service)
+        self.ui.upd_serv_btn.clicked.connect(self.get_service)
         self.ui.save_serv_btn.clicked.connect(self.save_service)
         self.ui.get_history()
+        self.ui.get_emp()
+        self.ui.del_empl_btn.clicked.connect(self.delete_emp)
+        self.ui.add_emp_btn.clicked.connect(self.add_emp)
+        self.ui.upd_emp_btn.clicked.connect(self.get_emp)
+        self.ui.save_empl_btn.clicked.connect(self.save_emp)
 
         if position == 'Администратор':
             self.ui.stackedWidget.setCurrentIndex(0)
@@ -44,18 +55,20 @@ class MainWindow(QMainWindow):
             self.ui.stackedWidget.setCurrentIndex(0)
             self.ui.del_serv_btn.hide()
             self.ui.save_serv_btn.hide()
+            self.ui.add_serv_btn.hide()
+            self.ui.upd_serv_btn.hide()
             self.ui.del_empl_btn.hide()
             self.ui.save_empl_btn.hide()
-            self.ui.history_table.hide()
             self.ui.empl_table.hide()
+            self.ui.add_emp_btn.hide()
+            self.ui.upd_emp_btn.hide()
+            self.ui.history_table.hide()
 
     def exit(self):
         self.close()
         Auth()
 
-    '''
-    Функции, связанные с ЗАКАЗАМИ
-    '''
+    # Функции, связанные с ЗАКАЗАМИ
 
     def get_order(self):
         self.ui.order_table.clear()
@@ -125,7 +138,7 @@ class MainWindow(QMainWindow):
             data.append(tmp)
         return data
 
-     # Функции, связанные с КОМПЛЕКТУЮЩИМИ
+    # Функции, связанные с КОМПЛЕКТУЮЩИМИ
 
     def get_wh(self):
         self.ui.wh_table.clear()
@@ -193,9 +206,7 @@ class MainWindow(QMainWindow):
             data.append(tmp)
         return data
 
-    '''
-    Функции, связанные с КЛИЕНТАМИ
-    '''
+    # Функции, связанные с КЛИЕНТАМИ
 
     def get_client(self):
         self.ui.client_table.clear()
@@ -213,9 +224,56 @@ class MainWindow(QMainWindow):
         self.ui.client_table.resizeColumnsToContents()
         self.client_table.setSortingEnabled(True)
 
-    '''
-    Функции, связанные с УСЛУГАМИ
-    '''
+    def add_client(self):
+        add = 'client'
+        win = Add(add)
+
+    def delete_client(self):
+        selectedrow = self.ui.client_table.currentRow()
+        rowcount = self.ui.client_table.rowCount()
+        colcount = self.ui.client_table.columnCount()
+
+        if rowcount == 0:
+            msg = QMessageBox(self)
+            msg.setIcon(QMessageBox.Warning)
+            msg.setText("В таблице нет данных!")
+            msg.setWindowTitle("Ошибка")
+            msg.setStandardButtons(QMessageBox.Ok)
+            retval = msg.exec_()
+        elif selectedrow == -1:
+            msg = QMessageBox(self)
+            msg.setIcon(QMessageBox.Warning)
+            msg.setText("Выберите поле для удаления!")
+            msg.setWindowTitle("Ошибка")
+            msg.setStandardButtons(QMessageBox.Ok)
+            retval = msg.exec_()
+        else:
+            for col in range(1, colcount):
+                self.ui.client_table.setItem(selectedrow, col, QTableWidgetItem(''))
+            ix = self.ui.client_table.model().index(-1, -1)
+            self.ui.client_table.setCurrentIndex(ix)
+
+    def save_client(self):
+        data = self.get_client_tbl()
+        for string in data:
+            if string[1] != '':     # если название услуги есть, то обновляем данные
+                self.db.update_client(string[0], string[1], string[2], string[3])
+            else:                   # если названия услуги нет, то удаляем эту строку
+                self.db.delete_client(string[0])
+        self.get_client()
+
+    def get_client_tbl(self):
+        rows = self.ui.client_table.rowCount()     # получаем кол-во строк таблицы
+        cols = self.ui.client_table.columnCount()  # получаем кол-во столбцов таблицы
+        data = []
+        for row in range(rows):
+            tmp = []
+            for col in range(cols):
+                tmp.append(self.client_table.item(row, col).text())
+            data.append(tmp)
+        return data
+
+    # Функции, связанные с УСЛУГАМИ
 
     def get_service(self):
         self.ui.service_table.clear()
@@ -233,6 +291,10 @@ class MainWindow(QMainWindow):
                 self.ui.service_table.setItem(i, x, item)
         self.ui.service_table.resizeColumnsToContents()
         self.service_table.setSortingEnabled(True)
+
+    def add_service(self):
+        add = 'serv'
+        win = Add(add)
 
     def delete_service(self):
         selectedrow = self.ui.service_table.currentRow()
@@ -279,9 +341,7 @@ class MainWindow(QMainWindow):
             data.append(tmp)
         return data
 
-    '''
-    Функции, связанные с ИСТОРИЕЙ
-    '''
+    # Функции, связанные с ИСТОРИЕЙ
 
     def get_history(self):
         self.ui.history_table.clear()
@@ -299,6 +359,75 @@ class MainWindow(QMainWindow):
                 self.ui.history_table.setItem(i, x, item)
         self.ui.history_table.resizeColumnsToContents()
         self.history_table.setSortingEnabled(True)
+
+    # Функции, связанные с СОТРУДНИКАМИ
+
+    def get_emp(self):
+        self.ui.empl_table.clear()
+        rec = self.db.get_emp()
+        self.ui.empl_table.setColumnCount(7)
+        self.ui.empl_table.setRowCount(len(rec))
+        self.ui.empl_table.setHorizontalHeaderLabels(['ID Сотрудника', 'Фамилия', 'Имя', 'Отчество', 'Должность',
+                                                      'Логин', 'Пароль'])
+
+        for i, service in enumerate(rec):
+            for x, field in enumerate(service):
+                item = QTableWidgetItem()
+                item.setText(str(field))
+                if x == 0:
+                    item.setFlags(Qt.ItemIsEnabled)
+                self.ui.empl_table.setItem(i, x, item)
+        self.ui.empl_table.resizeColumnsToContents()
+        self.empl_table.setSortingEnabled(True)
+
+    def add_emp(self):
+        add = 'emp'
+        win = Add(add)
+
+    def delete_emp(self):
+        selectedrow = self.ui.empl_table.currentRow()
+        rowcount = self.ui.empl_table.rowCount()
+        colcount = self.ui.empl_table.columnCount()
+
+        if rowcount == 0:
+            msg = QMessageBox(self)
+            msg.setIcon(QMessageBox.Warning)
+            msg.setText("В таблице нет данных!")
+            msg.setWindowTitle("Ошибка")
+            msg.setStandardButtons(QMessageBox.Ok)
+            retval = msg.exec_()
+        elif selectedrow == -1:
+            msg = QMessageBox(self)
+            msg.setIcon(QMessageBox.Warning)
+            msg.setText("Выберите поле для удаления!")
+            msg.setWindowTitle("Ошибка")
+            msg.setStandardButtons(QMessageBox.Ok)
+            retval = msg.exec_()
+        else:
+            for col in range(1, colcount):
+                self.ui.empl_table.setItem(selectedrow, col, QTableWidgetItem(''))
+            ix = self.ui.empl_table.model().index(-1, -1)
+            self.ui.empl_table.setCurrentIndex(ix)
+
+    def save_emp(self):
+        data = self.get_emp_tbl()
+        for string in data:
+            if string[1] != '':                     # если название услуги есть, то обновляем данные
+                self.db.update_emp(string[0], string[1], string[2], string[3], string[4], string[5], string[6])
+            else:                                   # если названия услуги нет, то удаляем эту строку
+                self.db.delete_emp(string[0])
+        self.get_emp()
+
+    def get_emp_tbl(self):
+        rows = self.ui.empl_table.rowCount()     # получаем кол-во строк таблицы
+        cols = self.ui.empl_table.columnCount()  # получаем кол-во столбцов таблицы
+        data = []
+        for row in range(rows):
+            tmp = []
+            for col in range(cols):
+                tmp.append(self.empl_table.item(row, col).text())
+            data.append(tmp)
+        return data
 
 
 class Auth(QDialog):
@@ -372,6 +501,12 @@ class Add(QWidget):
             self.ui.stackedWidget.setCurrentIndex(0)
         elif add == 'wh':
             self.ui.stackedWidget.setCurrentIndex(1)
+        elif add == 'client':
+            self.ui.stackedWidget.setCurrentIndex(2)
+        elif add == 'service':
+            self.ui.stackedWidget.setCurrentIndex(3)
+        elif add == 'emp':
+            self.ui.stackedWidget.setCurrentIndex(4)
 
         self.build_combobox_client()
         self.build_combobox_service()
@@ -387,6 +522,9 @@ class Add(QWidget):
         self.update_sum()
         self.ui.btn_add_order.clicked.connect(self.add_order)
         self.ui.btn_add_wh.clicked.connect(self.add_wh)
+        self.ui.btn_add_client.clicked.connect(self.add_client)
+        self.ui.btn_add_serv.clicked.connect(self.add_service)
+        self.ui.btn_add_emp.clicked.connect(self.add_emp)
 
     def mes_box(self, type, text):
         messagebox = QMessageBox(self)
@@ -466,6 +604,37 @@ class Add(QWidget):
         self.mes_box(type, text)
         self.close()
 
+    def add_client(self):
+        name = self.ui.client_name_line.text()
+        number = self.ui.phone_line.text()
+        email = self.ui.email_line.text()
+        self.db.add_client(name, number, email)
+        type = 'Добавление клиента'
+        text = 'Клиент успешно добавлен. Нажмите кнопку "Обновить".'
+        self.mes_box(type, text)
+        self.close()
+
+    def add_service(self):
+        name = self.ui.serv_name_line.text()
+        cost = self.ui.serv_cost_box.value()
+        self.db.add_service(name, cost)
+        type = 'Добавление услуги'
+        text = 'Услуга успешно добавлена. Нажмите кнопку "Обновить".'
+        self.mes_box(type, text)
+        self.close()
+
+    def add_emp(self):
+        surname = self.ui.emp_sur_line.text()
+        name = self.ui.emp_name_line.text()
+        second = self.ui.emp_sec_line.text()
+        pos = self.ui.emp_pos_cb.currentText()
+        log = self.ui.emp_log_line.text()
+        pas = self.ui.emp_pas_line.text()
+        self.db.add_emp(surname, name, second, pos, log, pas)
+        type = 'Добавление сотрудника'
+        text = 'Сотрудник успешно добавлен. Нажмите кнопку "Обновить".'
+        self.mes_box(type, text)
+        self.close()
 
 
 class Database:
@@ -490,9 +659,7 @@ class Database:
         self.con.commit()
         cur.close()
 
-    '''
-    Функции, связанные с ЗАКАЗАМИ
-    '''
+    # Функции, связанные с ЗАКАЗАМИ
 
     def get_order(self):
         orders = []
@@ -632,9 +799,7 @@ class Database:
         self.con.commit()
         cur.close()
 
-    '''
-    Функции, связанные с КОМПЛЕКТУЮЩИМИ
-    '''
+    # Функции, связанные с КОМПЛЕКТУЮЩИМИ
 
     def get_wh(self):
         cursor = self.con.cursor()
@@ -665,19 +830,52 @@ class Database:
         self.con.commit()
         cur.close()
 
-    '''
-    Функции, связанные с КЛИЕНТАМИ
-    '''
+    # Функции, связанные с КЛИЕНТАМИ
 
     def get_client(self):
         cursor = self.con.cursor()
         cursor.execute(f"SELECT * FROM client")
         return cursor.fetchall()
 
+    def add_client(self, name, phone, email):
+        id = 1
+        try:
+            cur = self.con.cursor()
+            cur.execute("""INSERT INTO client VALUES (NULL,?,?,?)""", (name, phone, email))
+            self.con.commit()
+            cur.close()
+        except sqlite3.Error as error:
+            print("Ошибка при работе с SQLite", error)
+
+    def delete_client(self, id):
+        cur = self.con.cursor()
+        cur.execute(f'DELETE from client WHERE cl_id="{id}"')
+        self.con.commit()
+        cur.close()
+
+    def update_client(self, id, name, phone, email):
+        id = int(id)
+        cur = self.con.cursor()
+        cur.execute(f'UPDATE client set cl_name="{name}", ph_number="{phone}", email="{email}" WHERE cl_id="{id}"')
+        self.con.commit()
+        cur.close()
+
+    # Функции, связанные с УСЛУГАМИ
+
     def get_service(self):
         cursor = self.con.cursor()
         cursor.execute(f"SELECT * FROM service")
         return cursor.fetchall()
+
+    def add_service(self, name, cost):
+        id = 1
+        try:
+            cur = self.con.cursor()
+            cur.execute("""INSERT INTO service VALUES (NULL,?,?)""", (name, cost))
+            self.con.commit()
+            cur.close()
+        except sqlite3.Error as error:
+            print("Ошибка при работе с SQLite", error)
 
     def delete_service(self, id):
         cur = self.con.cursor()
@@ -691,6 +889,8 @@ class Database:
         cur.execute(f'UPDATE service set serv_name="{name}", serv_cost="{cost}" WHERE serv_id="{id}"')
         self.con.commit()
         cur.close()
+
+    # Функции, связанные с ИСТОРИЕЙ
 
     def get_history(self):
         emp = []
@@ -713,6 +913,37 @@ class Database:
         cursor.execute(f"SELECT `login` FROM employee WHERE `emp_id`='{id}'")
         name = cursor.fetchone()
         return str(name)[1:-2]
+
+    # Функции, связанные с СОТРУДНИКАМИ
+
+    def get_emp(self):
+        cursor = self.con.cursor()
+        cursor.execute(f"SELECT * FROM employee")
+        return cursor.fetchall()
+
+    def add_emp(self, surname, name, second_name, pos, log, pas):
+        id = 1
+        try:
+            cur = self.con.cursor()
+            cur.execute("""INSERT INTO employee VALUES (NULL,?,?,?,?,?,?)""", (surname, name, second_name, pos, log, pas))
+            self.con.commit()
+            cur.close()
+        except sqlite3.Error as error:
+            print("Ошибка при работе с SQLite", error)
+
+    def delete_emp(self, id):
+        cur = self.con.cursor()
+        cur.execute(f'DELETE from employee WHERE emp_id="{id}"')
+        self.con.commit()
+        cur.close()
+
+    def update_emp(self, id, surname, name, second_name, pos, log, pas):
+        id = int(id)
+        cur = self.con.cursor()
+        cur.execute(f'UPDATE employee set surname="{surname}", name="{name}", second_name="{second_name}",'
+                    f'position="{pos}", login="{log}", password="{pas}" WHERE emp_id="{id}"')
+        self.con.commit()
+        cur.close()
 
 
 if __name__ == '__main__':
